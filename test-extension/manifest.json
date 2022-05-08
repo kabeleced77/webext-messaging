@@ -1,0 +1,18 @@
+{
+  "manifest_version": 2,
+  "version": "1.0.0",
+  "name": "Test-Extension",
+  "description": "Test-Extension is only used for end-2-end tests",
+  "short_name": "Test-Ext",
+  "permissions": ["https://*/*", "http://*/*", "contextMenus", "storage"],
+  "background": {
+    "scripts": ["dist/backgroundscript.js"]
+  },
+  "content_scripts": [
+    {
+      "all_frames": true,
+      "matches": ["https://*/*", "http://*/*"],
+      "js": ["dist/contentscript.js"]
+    }
+  ]
+}

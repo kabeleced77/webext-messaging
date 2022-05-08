@@ -1,0 +1,36 @@
+{
+  "name": "@kabeleced/webext-messaging",
+  "version": "0.1.0",
+  "description": "This package provides a wrapper for WebExtensions messaging allowing an easier handling.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "rm -rf dist && tsc",
+    "test": "jest",
+    "pack": "npm run build && npm pack",
+    "e2e": "npx cypress open"
+  },
+  "keywords": [
+    "Typescript",
+    "WebExtensions",
+    "messaging"
+  ],
+  "author": "Kabeleced",
+  "devDependencies": {
+    "@types/jest": "^27.4.1",
+    "cypress": "^9.5.2",
+    "cypress-browser-extension-plugin": "^0.1.0",
+    "jest": "^27.5.1",
+    "mockzilla-webextension": "^0.13.0",
+    "moq.ts": "^7.3.4",
+    "ts-jest": "^27.1.4",
+    "typescript": "^4.6.3"
+  },
+  "dependencies": {
+    "@types/webextension-polyfill": "^0.8.3",
+    "webextension-polyfill": "^0.8.0"
+  }
+}
