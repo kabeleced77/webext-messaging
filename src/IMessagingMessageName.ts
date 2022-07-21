@@ -1,5 +1,5 @@
 /**
- * Interface describing the message name
+ * Interface describing the name of a message. 
  *
  */
 export interface IMessagingMessageName {
