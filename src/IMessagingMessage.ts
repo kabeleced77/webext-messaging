@@ -1,4 +1,4 @@
-import { IMessagingMessageName } from "./IMessagingMessageName";
+import { IMessagingMessageName } from './IMessagingMessageName'
 
 /**
  * Interface describing a serializable message sent via a messaging system.
