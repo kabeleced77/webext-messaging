@@ -11,13 +11,15 @@ export class MessagingBackgroundScript implements IMessagingOnConnect {
 
   public connect(): void {
     browser.runtime.onConnect.addListener((port: browser.Runtime.Port) => {
-      port.onMessage.addListener((message: IMessagingMessage) => {
+      port.onMessage.addListener((message: IMessagingMessage): void => {
         this.callbacks
           .filter((callback) => callback.messageName().name.match(message.name.name))
-          .forEach(async (handler) => {
-            const reply = await handler.executeAsync(message)
-            if (reply !== undefined) {
-              port.postMessage(reply)
+          .forEach(async (callbackByMessageName) => {
+            if (callbackByMessageName.executeAsync) {
+              const reply = await callbackByMessageName.executeAsync(message)
+              if (reply) {
+                port.postMessage(reply)
+              }
             }
           })
       })
