@@ -15,6 +15,7 @@ export class MessagingBackgroundScript implements IMessagingOnConnect {
         this.callbacks
           .filter((callback) => callback.messageName().name.match(message.name.name))
           .forEach(async (callbackByMessageName) => {
+            // check if the callback actually implemented a method handling the received message
             if (callbackByMessageName.executeAsync) {
               const reply = await callbackByMessageName.executeAsync(message)
               if (reply) {
