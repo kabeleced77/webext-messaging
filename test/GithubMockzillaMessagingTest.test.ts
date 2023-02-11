@@ -14,7 +14,10 @@ describe('BackgroundScriptMessaging', () => {
   beforeEach(() => {
     addListenerOnConnect = mockEvent(mockBrowser.runtime.onConnect)
     addListenerOnMessage = mockEvent(mockPort.onMessage)
+    mockPortNode.enable()
   })
+
+  afterEach(() => mockPortNode.verifyAndDisable())
 
   describe('MessagingBackgroundScript function test', () => {
     it('method connect() shall handle connection request', async () => {
@@ -27,7 +30,7 @@ describe('BackgroundScriptMessaging', () => {
   })
   describe('MessagingBackgroundScript function test 2', () => {
     it('method connect() shall handle more connection requests', async () => {
-      mockPort.postMessage.expect('test-message: reply')
+      mockPort.postMessage.expect('test-message-2: reply')
       const sut = new GithubMockzillaMessaging()
       sut.connect()
       addListenerOnConnect.emit(port)
