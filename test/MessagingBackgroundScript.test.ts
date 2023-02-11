@@ -9,14 +9,17 @@ import { deepMock } from 'mockzilla'
 import { Runtime } from 'webextension-polyfill'
 
 describe('MessagingBackgroundScript', () => {
-  const [port, mockPort] = deepMock<Runtime.Port>('port')
+  const [port, mockPort, mockPortNode] = deepMock<Runtime.Port>('port')
   let addListenerOnConnect: MockzillaEventOf<typeof mockBrowser.runtime.onConnect>
   let addListenerOnMessage: MockzillaEventOf<typeof mockPort.onMessage>
 
   beforeEach(() => {
     addListenerOnConnect = mockEvent(mockBrowser.runtime.onConnect)
     addListenerOnMessage = mockEvent(mockPort.onMessage)
+    mockPortNode.enable()
   })
+
+  afterEach(() => mockPortNode.verifyAndDisable())
 
   describe('MessagingBackgroundScript function test', () => {
     it('method connect() shall handle connection request', async () => {
@@ -39,7 +42,9 @@ describe('MessagingBackgroundScript', () => {
       ]
       const sut = new MessagingBackgroundScript(callbacks)
       sut.connect()
+      mockPort.postMessage.expect(msg01)
       addListenerOnConnect.emit(port)
+      addListenerOnMessage.emit(msg01, port)
     })
     it('method connect() shall handle messages by message-name', async () => {
       const name01 = 'messageName01'
@@ -61,10 +66,9 @@ describe('MessagingBackgroundScript', () => {
       ]
       const sut = new MessagingBackgroundScript(callbacks)
       sut.connect()
-      //mockPort.postMessage.expect(msg01).andReturn()
-      mockPort.onMessage.addListener.expect(()=>{})
+      mockPort.postMessage.expect(msg01)
       addListenerOnConnect.emit(port)
-      //addListenerOnMessage.emit(msg01, port)
+      addListenerOnMessage.emit(msg01, port)
     })
   })
 })
