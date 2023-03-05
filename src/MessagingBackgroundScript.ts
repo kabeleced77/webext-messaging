@@ -1,3 +1,4 @@
+import { IMessagingMessageName } from './IMessagingMessageName'
 import browser from 'webextension-polyfill'
 import { IMessagingCallbackAsync } from './IMessagingCallbackAsync'
 import { IMessagingOnConnect } from './IMessagingOnConnect'
@@ -12,7 +13,15 @@ export class MessagingBackgroundScript implements IMessagingOnConnect {
   public connect(): void {
     browser.runtime.onConnect.addListener((port: browser.Runtime.Port) => {
       port.onMessage.addListener((message: IMessagingMessage): void => {
+        if (message?.name?.name === undefined)
+          throw new Error('Error: received message did not implement interface correctly.')
+        console.info(
+          `onMessage: received message: name: ${message.name.name}, object: ${JSON.stringify(
+            message,
+          )}`,
+        )
         this.callbacks
+          .filter((callback) => callback.messageName && callback.messageName()?.name)
           .filter((callback) => callback.messageName().name.match(message.name.name))
           .forEach(async (callbackByMessageName) => {
             // check if the callback actually implemented a method handling the received message
