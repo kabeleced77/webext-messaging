@@ -56,30 +56,39 @@ describe('MessagingBackgroundScript', () => {
       addListenerOnConnect.emit(port)
       addListenerOnMessage.emit(msg01, port)
     })
-    it("expect exception 'received message not well implemented' as received message is 'undefined'", async () => {
+    it("expect exception as received message is 'undefined'", async () => {
       const sut = new MessagingBackgroundScript([])
       expect(() => {
         sut.connect()
         addListenerOnConnect.emit(port)
         addListenerOnMessage.emit(undefined, port)
-      }).toThrow('Error: received message did not implement interface correctly.')
+      }).toThrowError()
     })
-    it("expect exception 'received message not well implemented' as received message's name is 'undefined'", async () => {
+    it("expect exception as received message's name-property is 'undefined'", async () => {
+      const msg01 = mockedMessage(undefined!)
+      const sut = new MessagingBackgroundScript([])
+      expect(() => {
+        sut.connect()
+        addListenerOnConnect.emit(port)
+        addListenerOnMessage.emit(msg01, port)
+      }).toThrowError()
+    })
+    it("expect exception as received message's name-property's name is 'undefined'", async () => {
       const msg01 = mockedMessage(mockedMessageName(undefined!))
       const sut = new MessagingBackgroundScript([])
       expect(() => {
         sut.connect()
         addListenerOnConnect.emit(port)
         addListenerOnMessage.emit(msg01, port)
-      }).toThrow('Error: received message did not implement interface correctly.')
+      }).toThrowError()
     })
-    it("expect exception 'received message not well implemented' as received message is just a string", async () => {
+    it('expect exception as received message is just a string', async () => {
       const sut = new MessagingBackgroundScript([])
       expect(() => {
         sut.connect()
         addListenerOnConnect.emit(port)
         addListenerOnMessage.emit('just a string and no object', port)
-      }).toThrow('Error: received message did not implement interface correctly.')
+      }).toThrowError()
     })
     it('expect no message-handling as there is no message handler registered for received message', async () => {
       const msgName01 = mockedMessageName('message-name-01')
@@ -100,10 +109,46 @@ describe('MessagingBackgroundScript', () => {
       addListenerOnMessage.emit(msg02, port)
     })
     it("expect no message-handling as message handler's message name object is not well implemented", async () => {
-      const msgName01 = mockedMessageName(undefined!)
       const msg01 = mockedMessage(mockedMessageName('message-name-01'))
-      const sut = new MessagingBackgroundScript([mockedCallback(msgName01)])
+      const sut = new MessagingBackgroundScript([mockedCallback(mockedMessageName(undefined!))])
       sut.connect()
+      addListenerOnConnect.emit(port)
+      addListenerOnMessage.emit(msg01, port)
+    })
+    it('expect message-handling even one callback throws internal error', async () => {
+      const msgName01 = mockedMessageName('message-name-01')
+      const msg01 = mockedMessage(msgName01)
+      const sut = new MessagingBackgroundScript([
+        mockedCallback(
+          msgName01,
+          msg01,
+          new Promise<IMessagingMessage>(() => {
+            throw 'Internal UT-Error'
+          }),
+        ),
+        mockedCallback(
+          msgName01,
+          msg01,
+          new Promise<IMessagingMessage>((resolve) => resolve(msg01)),
+        ),
+      ])
+      sut.connect()
+      mockPort.postMessage.expect(msg01).times(1)
+      addListenerOnConnect.emit(port)
+      addListenerOnMessage.emit(msg01, port)
+    })
+    it('expect message-handling of received message by message handler registered for received message', async () => {
+      const msgName01 = mockedMessageName('message-name-01')
+      const msg01 = mockedMessage(msgName01)
+      const sut = new MessagingBackgroundScript([
+        mockedCallback(
+          msgName01,
+          msg01,
+          new Promise<IMessagingMessage>((resolve) => resolve(msg01)),
+        ),
+      ])
+      sut.connect()
+      mockPort.postMessage.expect(msg01).times(1)
       addListenerOnConnect.emit(port)
       addListenerOnMessage.emit(msg01, port)
     })
@@ -125,7 +170,14 @@ describe('MessagingBackgroundScript', () => {
       sut.connect()
       mockPort.postMessage.expect(msg01).times(2)
       addListenerOnConnect.emit(port)
-      console.info(`from UT: ${msg01.name.name}, ${JSON.stringify(msg01)}`)
+      addListenerOnMessage.emit(msg01, port)
+    })
+    it('expect message-handling of received message where no reply comes from message handler', async () => {
+      const msgName01 = mockedMessageName('message-name-01')
+      const msg01 = mockedMessage(msgName01)
+      const sut = new MessagingBackgroundScript([mockedCallback(msgName01, msg01)])
+      sut.connect()
+      addListenerOnConnect.emit(port)
       addListenerOnMessage.emit(msg01, port)
     })
   })

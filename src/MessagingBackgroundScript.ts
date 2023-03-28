@@ -1,4 +1,3 @@
-import { IMessagingMessageName } from './IMessagingMessageName'
 import browser from 'webextension-polyfill'
 import { IMessagingCallbackAsync } from './IMessagingCallbackAsync'
 import { IMessagingOnConnect } from './IMessagingOnConnect'
@@ -13,23 +12,21 @@ export class MessagingBackgroundScript implements IMessagingOnConnect {
   public connect(): void {
     browser.runtime.onConnect.addListener((port: browser.Runtime.Port) => {
       port.onMessage.addListener((message: IMessagingMessage): void => {
-        if (message?.name?.name === undefined)
-          throw new Error('Error: received message did not implement interface correctly.')
-        console.info(
-          `onMessage: received message: name: ${message.name.name}, object: ${JSON.stringify(
-            message,
-          )}`,
-        )
+        if (message === undefined) throw new Error('Error: received message is undefined.')
+        if (message.name === undefined)
+          throw new Error("Error: received message does not implemented property 'name'.")
+        if (message.name.name === undefined)
+          throw new Error("Error: received message does not implemented property 'name.name'.")
         this.callbacks
+          .filter((callback) => callback.executeAsync)
           .filter((callback) => callback.messageName && callback.messageName()?.name)
           .filter((callback) => callback.messageName().name.match(message.name.name))
           .forEach(async (callbackByMessageName) => {
-            // check if the callback actually implemented a method handling the received message
-            if (callbackByMessageName.executeAsync) {
-              const reply = await callbackByMessageName.executeAsync(message)
-              if (reply) {
-                port.postMessage(reply)
-              }
+            const reply = await callbackByMessageName.executeAsync(message).catch((err) => {
+              console.warn(`Error in callback for message name '${message.name.name}': ${err}`)
+            })
+            if (reply) {
+              port.postMessage(reply)
             }
           })
       })
