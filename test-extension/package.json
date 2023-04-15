@@ -5,7 +5,7 @@
   "main": "background.js",
   "scripts": {
     "update-sut": "npm r @kabeleced/webext-messaging && npm i ../kabeleced-webext-messaging-0.1.0.tgz",
-    "addon": "rm -rf dist && npx webpack"
+    "addon": "npm run update-sut && rm -rf dist && npx webpack"
   },
   "author": "",
   "license": "ISC",
