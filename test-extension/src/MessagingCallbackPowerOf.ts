@@ -1,11 +1,13 @@
+import {
+  IMessagingMessageName,
+  IMessagingMessageWithContent,
+  MessagingMessageWithContent,
+} from '@kabeleced/webext-messaging'
+import { IMessagingCallbackAsync } from '@kabeleced/webext-messaging'
 import { MessagingMessageNamePowerOf } from './MessagingMessageNamePowerOf'
 import { IMessagingMessageContentPowerOf } from './IMessagingMessageContentPowerOf'
-import { MessagingMessageWithContent } from '../../src/MessagingMessageWithContent'
-import { IMessagingMessageWithContent } from '../../src/IMessagingMessageWithContent'
-import { IMessagingMessageName } from '@kabeleced/webext-messaging'
-import { IMessagingCallbackAsync } from '@kabeleced/webext-messaging'
 
-export class MessagingCallbackPowerOf implements IMessagingCallbackAsync {
+export class MessagingCallbackPowerOf implements IMessagingCallbackAsync<IMessagingMessageWithContent<IMessagingMessageContentPowerOf>, IMessagingMessageWithContent<number>> {
   constructor() {}
 
   public messageName(): IMessagingMessageName {

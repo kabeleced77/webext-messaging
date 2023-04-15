@@ -1,12 +1,13 @@
 // import of mockzilla-webextension before(!) actual import of 'webextension-polyfill' in system-under-test
 import { mockEvent, MockzillaEventOf } from 'mockzilla-webextension'
-import { IMessagingMessageName } from '../test-extension/dist/src/IMessagingMessageName'
-import { IMessagingCallbackAsync } from '../src/IMessagingCallbackAsync'
+import { Runtime } from 'webextension-polyfill'
 import { Mock } from 'moq.ts'
+import { deepMock } from 'mockzilla'
+import { IMessagingCallbackAsync } from '../src/IMessagingCallbackAsync'
 import { MessagingBackgroundScript } from '../src/MessagingBackgroundScript'
 import { IMessagingMessage } from '../src/IMessagingMessage'
-import { deepMock } from 'mockzilla'
-import { Runtime } from 'webextension-polyfill'
+import { IMessagingMessageWithContent } from '../src/IMessagingMessageWithContent'
+import { IMessagingMessageName } from '../src/IMessagingMessageName'
 
 describe('MessagingBackgroundScript', () => {
   const [port, mockPort, mockPortNode] = deepMock<Runtime.Port>('port')
@@ -29,9 +30,9 @@ describe('MessagingBackgroundScript', () => {
     })
     it('expect no message-handling as no message received', async () => {
       const callbacks = [
-        new Mock<IMessagingCallbackAsync>().object(),
-        new Mock<IMessagingCallbackAsync>().object(),
-        new Mock<IMessagingCallbackAsync>().object(),
+        new Mock<IMessagingCallbackAsync<unknown, unknown>>().object(),
+        new Mock<IMessagingCallbackAsync<unknown, unknown>>().object(),
+        new Mock<IMessagingCallbackAsync<unknown, unknown>>().object(),
       ]
       const sut = new MessagingBackgroundScript(callbacks)
       sut.connect()
@@ -40,9 +41,9 @@ describe('MessagingBackgroundScript', () => {
     it('expect no message-handling as there is no correctly implemented handler registered', async () => {
       const msg01 = mockedMessage(mockedMessageName('message-name'))
       const callbacks = [
-        new Mock<IMessagingCallbackAsync>().object(),
-        new Mock<IMessagingCallbackAsync>().object(),
-        new Mock<IMessagingCallbackAsync>().object(),
+        new Mock<IMessagingCallbackAsync<unknown, unknown>>().object(),
+        new Mock<IMessagingCallbackAsync<unknown, unknown>>().object(),
+        new Mock<IMessagingCallbackAsync<unknown, unknown>>().object(),
       ]
       const sut = new MessagingBackgroundScript(callbacks)
       sut.connect()
@@ -180,22 +181,60 @@ describe('MessagingBackgroundScript', () => {
       addListenerOnConnect.emit(port)
       addListenerOnMessage.emit(msg01, port)
     })
+    it("expect message-handling of received message where message contains 'content' and no reply comes from message handler", async () => {
+      const msgName01 = mockedMessageName('message-name-01')
+      const msg01 = mockedMessageWithContent<string>(msgName01, 'message-content')
+      let mockedCallback = new Mock<
+        IMessagingCallbackAsync<IMessagingMessageWithContent<string>, void>
+      >()
+        .setup((callback) => callback.messageName())
+        .returns(msgName01)
+        .setup((cb) => cb.executeAsync(msg01))
+        .returns(new Promise<void>((resolve) => resolve()))
+        .object()
+      const sut = new MessagingBackgroundScript([mockedCallback])
+      sut.connect()
+      addListenerOnConnect.emit(port)
+      addListenerOnMessage.emit(msg01, port)
+    })
+    it("expect message-handling of received message where message contains 'content' and a reply comes from message handler", async () => {
+      const msgName01 = mockedMessageName('message-name-01')
+      const msg01 = mockedMessageWithContent<string>(msgName01, 'message-content')
+      let mockedCallback = new Mock<
+        IMessagingCallbackAsync<IMessagingMessageWithContent<string>, number>
+      >()
+        .setup((callback) => callback.messageName())
+        .returns(msgName01)
+        .setup((cb) => cb.executeAsync(msg01))
+        .returns(new Promise<number>((resolve) => resolve(42)))
+        .object()
+      const sut = new MessagingBackgroundScript([mockedCallback])
+      sut.connect()
+      mockPort.postMessage.expect(42).times(1)
+      addListenerOnConnect.emit(port)
+      addListenerOnMessage.emit(msg01, port)
+    })
   })
 
   /*** Supporting functions encapsulating repeating mocking methods ***/
 
   function mockedCallback(
     msgNameObj: IMessagingMessageName,
-    msgObj?: IMessagingMessage,
-    callbackAsync?: Promise<IMessagingMessage>,
-  ): IMessagingCallbackAsync {
-    let mockedCallback = new Mock<IMessagingCallbackAsync>()
+    msgObjReceived?: IMessagingMessage,
+    callbackReturn?: Promise<IMessagingMessage>,
+  ): IMessagingCallbackAsync<unknown, unknown> {
+    let mockedCallback = new Mock<IMessagingCallbackAsync<unknown, unknown>>()
       .setup((callback) => callback.messageName())
       .returns(msgNameObj)
-    if (msgObj && callbackAsync) {
+    if (msgObjReceived) {
       mockedCallback = mockedCallback
-        .setup((callback) => callback.executeAsync(msgObj))
-        .returns(callbackAsync)
+        .setup((callback) => callback.executeAsync(msgObjReceived))
+        .returns(new Promise<void>((r) => r()))
+    }
+    if (msgObjReceived && callbackReturn) {
+      mockedCallback = mockedCallback
+        .setup((callback) => callback.executeAsync(msgObjReceived))
+        .returns(callbackReturn)
     }
     return mockedCallback.object()
   }
@@ -203,6 +242,17 @@ describe('MessagingBackgroundScript', () => {
     return new Mock<IMessagingMessage>()
       .setup((msg) => msg.name)
       .returns(msgNameObj)
+      .object()
+  }
+  function mockedMessageWithContent<TContent>(
+    msgNameObj: IMessagingMessageName,
+    msgContent: TContent,
+  ): IMessagingMessageWithContent<TContent> {
+    return new Mock<IMessagingMessageWithContent<TContent>>()
+      .setup((msg) => msg.name)
+      .returns(msgNameObj)
+      .setup((msg) => msg.content)
+      .returns(msgContent)
       .object()
   }
   function mockedMessageName(msgNameStr: string): IMessagingMessageName {

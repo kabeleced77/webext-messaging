@@ -1,11 +1,15 @@
-import { MessagingMessageNameTimeNow } from './MessagingMessageNameTimeNow'
-import { MessagingMessageWithContent } from './../../src/MessagingMessageWithContent'
-import { IMessagingMessageWithContent } from '../../src/IMessagingMessageWithContent'
-import { IMessagingMessage } from '@kabeleced/webext-messaging'
+import {
+  IMessagingMessage,
+  IMessagingMessageWithContent,
+  MessagingMessageWithContent,
+} from '@kabeleced/webext-messaging'
 import { IMessagingMessageName } from '@kabeleced/webext-messaging'
 import { IMessagingCallbackAsync } from '@kabeleced/webext-messaging'
+import { MessagingMessageNameTimeNow } from './MessagingMessageNameTimeNow'
 
-export class MessagingCallbackTimeNow implements IMessagingCallbackAsync {
+export class MessagingCallbackTimeNow
+  implements IMessagingCallbackAsync<IMessagingMessage, IMessagingMessageWithContent<Date>>
+{
   constructor() {}
 
   public messageName(): IMessagingMessageName {

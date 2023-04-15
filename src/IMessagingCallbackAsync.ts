@@ -1,7 +1,6 @@
-import { IMessagingMessage } from './IMessagingMessage'
 import { IMessagingMessageName } from './IMessagingMessageName'
 
-export interface IMessagingCallbackAsync {
+export interface IMessagingCallbackAsync<TReceive, TReply> {
   messageName(): IMessagingMessageName
-  executeAsync(messageReceived: IMessagingMessage): Promise<IMessagingMessage>
+  executeAsync(messageReceived: TReceive): Promise<TReply>
 }
