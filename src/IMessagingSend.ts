@@ -1,3 +1,3 @@
-export interface IMessagingSend<TSendMessage, TReceiveMessage> {
-  send(message: TSendMessage): Promise<TReceiveMessage>
+export interface IMessagingSend<TSend, TReceive> {
+  send(message: TSend): Promise<TReceive>
 }
