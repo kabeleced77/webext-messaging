@@ -3,20 +3,37 @@ import { IMessagingSend } from './IMessagingSend'
 import { IMessagingPort } from './IMessagingPort'
 
 export class MessagingContentScript<TSend, TReceive> implements IMessagingSend<TSend, TReceive> {
-  constructor(private port: IMessagingPort) { }
+  private runtimePort!: browser.Runtime.Port
+  private readonly messagingPortName: string
+
+  constructor(private readonly messagingPort: IMessagingPort) {
+    if (this.messagingPort === undefined) throw new Error("Messaging port is undefined.")
+    if (this.messagingPort.name === undefined) throw new Error("Messaging port does not implement method 'name()'.")
+    this.messagingPortName = this.messagingPort.name()
+    if (this.messagingPortName === undefined) throw new Error("Messaging port's name is undefined.")
+  }
+
+  private connect() {
+    // connect to opened listeners (e.g. from background script)
+    this.runtimePort = browser.runtime.connect({ name: this.messagingPortName })
+    // register handler in case of port got disconnected
+    this.runtimePort.onDisconnect.addListener((port) => {
+      if (port.error) {
+        console.warn(`Port '${this.messagingPortName}' got disconnected. Reconnect on next call of 'this.send()'. Error was: ${port.error.message}`);
+      }
+      // set port-property to undefined supporting automated re-connect on calling this.send()
+      this.runtimePort = undefined!
+    })
+  }
 
   public send(message: TSend): Promise<TReceive> {
+    if (!this.runtimePort) this.connect()
     return new Promise((resolve, reject) => {
       try {
-        if (this.port === undefined) throw new Error("Messaging port is undefined.")
-        if (this.port.name === undefined) throw new Error("Messaging port does not implement method 'name()'.")
-        if (this.port.name() === undefined) throw new Error("Messaging port's name is undefined.")
-        // connect to opened listeners (e.g. from background script)
-        const port = browser.runtime.connect({ name: this.port.name() })
         // send message (e.g. to background script)
-        port.postMessage(message)
+        this.runtimePort.postMessage(message)
         // register handler in case a reply is sent (e.g. from background script)
-        port.onMessage.addListener((m, p): void => {
+        this.runtimePort.onMessage.addListener((m, p): void => {
           resolve(m)
         })
       } catch (error) {
