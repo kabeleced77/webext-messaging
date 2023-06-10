@@ -9,7 +9,7 @@ import { IMessagingMessage } from './IMessagingMessage'
 export class MessagingBackgroundScript implements IMessagingOnConnect {
   constructor(private readonly callbacks: IMessagingCallbackAsync<unknown, unknown>[]) {}
 
-  public connect(): void {
+  public onConnect(): void {
     browser.runtime.onConnect.addListener((port: browser.Runtime.Port) => {
       port.onMessage.addListener((message: IMessagingMessage): void => {
         if (message === undefined) throw new Error('Error: received message is undefined.')

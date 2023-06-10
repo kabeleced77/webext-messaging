@@ -1,3 +1,3 @@
-export interface IMessagingOnConnect {
-  connect(): void
+export interface IMessagingOnConnect<TOnConnect = void> {
+  onConnect(onConnect: TOnConnect): void
 }

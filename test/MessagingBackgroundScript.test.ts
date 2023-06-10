@@ -25,7 +25,7 @@ describe('MessagingBackgroundScript', () => {
   describe('MessagingBackgroundScript function test', () => {
     it('expect no message-handling as there is no message handler registered and no message received', async () => {
       const sut = new MessagingBackgroundScript([])
-      sut.connect()
+      sut.onConnect()
       addListenerOnConnect.emit(port)
     })
     it('expect no message-handling as no message received', async () => {
@@ -35,7 +35,7 @@ describe('MessagingBackgroundScript', () => {
         new Mock<IMessagingCallbackAsync<unknown, unknown>>().object(),
       ]
       const sut = new MessagingBackgroundScript(callbacks)
-      sut.connect()
+      sut.onConnect()
       addListenerOnConnect.emit(port)
     })
     it('expect no message-handling as there is no correctly implemented handler registered', async () => {
@@ -46,21 +46,21 @@ describe('MessagingBackgroundScript', () => {
         new Mock<IMessagingCallbackAsync<unknown, unknown>>().object(),
       ]
       const sut = new MessagingBackgroundScript(callbacks)
-      sut.connect()
+      sut.onConnect()
       addListenerOnConnect.emit(port)
       addListenerOnMessage.emit(msg01, port)
     })
     it('expect no message-handling as there is no well-implemented message handler registered', async () => {
       const msg01 = mockedMessage(mockedMessageName('message-name'))
       const sut = new MessagingBackgroundScript([])
-      sut.connect()
+      sut.onConnect()
       addListenerOnConnect.emit(port)
       addListenerOnMessage.emit(msg01, port)
     })
     it("expect exception as received message is 'undefined'", async () => {
       const sut = new MessagingBackgroundScript([])
       expect(() => {
-        sut.connect()
+        sut.onConnect()
         addListenerOnConnect.emit(port)
         addListenerOnMessage.emit(undefined, port)
       }).toThrowError()
@@ -69,7 +69,7 @@ describe('MessagingBackgroundScript', () => {
       const msg01 = mockedMessage(undefined!)
       const sut = new MessagingBackgroundScript([])
       expect(() => {
-        sut.connect()
+        sut.onConnect()
         addListenerOnConnect.emit(port)
         addListenerOnMessage.emit(msg01, port)
       }).toThrowError()
@@ -78,7 +78,7 @@ describe('MessagingBackgroundScript', () => {
       const msg01 = mockedMessage(mockedMessageName(undefined!))
       const sut = new MessagingBackgroundScript([])
       expect(() => {
-        sut.connect()
+        sut.onConnect()
         addListenerOnConnect.emit(port)
         addListenerOnMessage.emit(msg01, port)
       }).toThrowError()
@@ -86,7 +86,7 @@ describe('MessagingBackgroundScript', () => {
     it('expect exception as received message is just a string', async () => {
       const sut = new MessagingBackgroundScript([])
       expect(() => {
-        sut.connect()
+        sut.onConnect()
         addListenerOnConnect.emit(port)
         addListenerOnMessage.emit('just a string and no object', port)
       }).toThrowError()
@@ -98,21 +98,21 @@ describe('MessagingBackgroundScript', () => {
         mockedCallback(msgName01),
         mockedCallback(msgName01),
       ])
-      sut.connect()
+      sut.onConnect()
       addListenerOnConnect.emit(port)
       addListenerOnMessage.emit(msg02, port)
     })
     it("expect no message-handling as message handler does not implement method 'messageName()' correctly", async () => {
       const msg02 = mockedMessage(mockedMessageName('message-name-02'))
       const sut = new MessagingBackgroundScript([mockedCallback(undefined!)])
-      sut.connect()
+      sut.onConnect()
       addListenerOnConnect.emit(port)
       addListenerOnMessage.emit(msg02, port)
     })
     it("expect no message-handling as message handler's message name object is not well implemented", async () => {
       const msg01 = mockedMessage(mockedMessageName('message-name-01'))
       const sut = new MessagingBackgroundScript([mockedCallback(mockedMessageName(undefined!))])
-      sut.connect()
+      sut.onConnect()
       addListenerOnConnect.emit(port)
       addListenerOnMessage.emit(msg01, port)
     })
@@ -133,7 +133,7 @@ describe('MessagingBackgroundScript', () => {
           new Promise<IMessagingMessage>((resolve) => resolve(msg01)),
         ),
       ])
-      sut.connect()
+      sut.onConnect()
       mockPort.postMessage.expect(msg01).times(1)
       addListenerOnConnect.emit(port)
       addListenerOnMessage.emit(msg01, port)
@@ -148,7 +148,7 @@ describe('MessagingBackgroundScript', () => {
           new Promise<IMessagingMessage>((resolve) => resolve(msg01)),
         ),
       ])
-      sut.connect()
+      sut.onConnect()
       mockPort.postMessage.expect(msg01).times(1)
       addListenerOnConnect.emit(port)
       addListenerOnMessage.emit(msg01, port)
@@ -168,7 +168,7 @@ describe('MessagingBackgroundScript', () => {
           new Promise<IMessagingMessage>((resolve) => resolve(msg01)),
         ),
       ])
-      sut.connect()
+      sut.onConnect()
       mockPort.postMessage.expect(msg01).times(2)
       addListenerOnConnect.emit(port)
       addListenerOnMessage.emit(msg01, port)
@@ -177,7 +177,7 @@ describe('MessagingBackgroundScript', () => {
       const msgName01 = mockedMessageName('message-name-01')
       const msg01 = mockedMessage(msgName01)
       const sut = new MessagingBackgroundScript([mockedCallback(msgName01, msg01)])
-      sut.connect()
+      sut.onConnect()
       addListenerOnConnect.emit(port)
       addListenerOnMessage.emit(msg01, port)
     })
@@ -193,7 +193,7 @@ describe('MessagingBackgroundScript', () => {
         .returns(new Promise<void>((resolve) => resolve()))
         .object()
       const sut = new MessagingBackgroundScript([mockedCallback])
-      sut.connect()
+      sut.onConnect()
       addListenerOnConnect.emit(port)
       addListenerOnMessage.emit(msg01, port)
     })
@@ -209,7 +209,7 @@ describe('MessagingBackgroundScript', () => {
         .returns(new Promise<number>((resolve) => resolve(42)))
         .object()
       const sut = new MessagingBackgroundScript([mockedCallback])
-      sut.connect()
+      sut.onConnect()
       mockPort.postMessage.expect(42).times(1)
       addListenerOnConnect.emit(port)
       addListenerOnMessage.emit(msg01, port)
