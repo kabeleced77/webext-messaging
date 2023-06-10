@@ -1,3 +1,3 @@
-export interface IMessagingPort {
-  name(): string
+export interface IMessagingPort<T> {
+  id(): T
 }

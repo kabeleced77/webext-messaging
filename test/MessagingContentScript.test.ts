@@ -25,8 +25,8 @@ describe('MessagingContentScript', () => {
     it('expect no reply of sent (message !== undefined)', async () => {
       const portName = 'port-name'
       const message = 'message-no-reply'
-      const mockedMessagingPort = new Mock<IMessagingPort>()
-        .setup((port) => port.name())
+      const mockedMessagingPort = new Mock<IMessagingPort<string>>()
+        .setup((port) => port.id())
         .returns(portName)
         .object()
       mockBrowser.runtime.connect.expect({ name: portName }).andReturn(port)
@@ -37,8 +37,8 @@ describe('MessagingContentScript', () => {
     it('expect no reply of sent (message === undefined)', async () => {
       const portName = 'port-name'
       const message = undefined!
-      const mockedMessagingPort = new Mock<IMessagingPort>()
-        .setup((port) => port.name())
+      const mockedMessagingPort = new Mock<IMessagingPort<string>>()
+        .setup((port) => port.id())
         .returns(portName)
         .object()
       mockBrowser.runtime.connect.expect({ name: portName }).andReturn(port)
@@ -50,8 +50,8 @@ describe('MessagingContentScript', () => {
       const portName = 'port-name'
       const message = 'message-with-reply'
       const messageReply = 'reply of message-with-reply'
-      const mockedMessagingPort = new Mock<IMessagingPort>()
-        .setup((port) => port.name())
+      const mockedMessagingPort = new Mock<IMessagingPort<string>>()
+        .setup((port) => port.id())
         .returns(portName)
         .object()
       mockBrowser.runtime.connect.expect({ name: portName }).andReturn(port)
@@ -64,8 +64,8 @@ describe('MessagingContentScript', () => {
       const portName = 'port-name'
       const message = undefined!
       const messageReply = 'reply of message-with-reply'
-      const mockedMessagingPort = new Mock<IMessagingPort>()
-        .setup((port) => port.name())
+      const mockedMessagingPort = new Mock<IMessagingPort<string>>()
+        .setup((port) => port.id())
         .returns(portName)
         .object()
       mockBrowser.runtime.connect.expect({ name: portName }).andReturn(port)
@@ -78,8 +78,8 @@ describe('MessagingContentScript', () => {
       const portName = 'port-name'
       const message = 'message-with-reply'
       const messageReply = undefined
-      const mockedMessagingPort = new Mock<IMessagingPort>()
-        .setup((port) => port.name())
+      const mockedMessagingPort = new Mock<IMessagingPort<string>>()
+        .setup((port) => port.id())
         .returns(portName)
         .object()
       mockBrowser.runtime.connect.expect({ name: portName }).andReturn(port)
@@ -92,8 +92,8 @@ describe('MessagingContentScript', () => {
       const portName = 'port-name'
       const message = undefined!
       const messageReply = undefined
-      const mockedMessagingPort = new Mock<IMessagingPort>()
-        .setup((port) => port.name())
+      const mockedMessagingPort = new Mock<IMessagingPort<string>>()
+        .setup((port) => port.id())
         .returns(portName)
         .object()
       mockBrowser.runtime.connect.expect({ name: portName }).andReturn(port)
@@ -112,8 +112,8 @@ describe('MessagingContentScript', () => {
     })
     it('expect error if messaging-port-interface is not implementing method name()', async () => {
       const message = 'message-no-reply'
-      const mockedMessagingPort = new Mock<IMessagingPort>()
-        .setup((port) => port.name)
+      const mockedMessagingPort = new Mock<IMessagingPort<string>>()
+        .setup((port) => port.id())
         .returns(undefined!)
         .object()
       expect(() => {
@@ -123,8 +123,8 @@ describe('MessagingContentScript', () => {
     })
     it('expect error if messaging-port-interface is not implemented', async () => {
       const message = 'message-no-reply'
-      const mockedMessagingPort = new Mock<IMessagingPort>()
-        .setup((port) => port.name())
+      const mockedMessagingPort = new Mock<IMessagingPort<string>>()
+        .setup((port) => port.id())
         .returns(undefined!)
         .object()
       expect(() => {
@@ -135,8 +135,8 @@ describe('MessagingContentScript', () => {
     it('Port got disconnected ', async () => {
       const portName = 'port-name'
       const message = 'message-no-reply'
-      const mockedMessagingPort = new Mock<IMessagingPort>()
-        .setup((port) => port.name())
+      const mockedMessagingPort = new Mock<IMessagingPort<string>>()
+        .setup((port) => port.id())
         .returns(portName)
         .object()
       mockBrowser.runtime.connect.expect({ name: portName }).andReturn(port)
@@ -150,8 +150,8 @@ describe('MessagingContentScript', () => {
     it('Port got disconnected - reconnection at next call of send()', async () => {
       const portName = 'port-name'
       const message = 'message-no-reply'
-      const mockedMessagingPort = new Mock<IMessagingPort>()
-        .setup((port) => port.name())
+      const mockedMessagingPort = new Mock<IMessagingPort<string>>()
+        .setup((port) => port.id())
         .returns(portName)
         .object()
       mockBrowser.runtime.connect.expect({ name: portName }).andReturn(port).times(2)
