@@ -27,9 +27,9 @@ export class MessagingContentScript<TSend, TReceive> implements IMessagingSend<T
   }
 
   public send(message: TSend): Promise<TReceive> {
-    if (!this.runtimePort) this.connect()
     return new Promise((resolve, reject) => {
       try {
+        if (!this.runtimePort) this.connect()
         // send message (e.g. to background script)
         this.runtimePort.postMessage(message)
         // register handler in case a reply is sent (e.g. from background script)
