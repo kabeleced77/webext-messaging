@@ -3,8 +3,8 @@ import { mockEvent, MockzillaEventOf } from 'mockzilla-webextension'
 import { runtime, Runtime } from 'webextension-polyfill'
 import { Mock } from 'moq.ts'
 import { deepMock } from 'mockzilla'
-import { MessagingContentScript } from '../src/MessagingContentScript'
-import { IMessagingPort } from '../src/IMessagingPort'
+import { MessagingContentScript } from '../src/MessagingOnConnect/MessagingContentScript'
+import { IMessagingPort } from '../src/MessagingOnConnect/IMessagingPort'
 
 describe('MessagingContentScript', () => {
   const [portErrorType, mockPortErrorType, mockPortErrorTypeNode] = deepMock<Runtime.PortErrorType>('portErrorType')
