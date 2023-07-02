@@ -6,7 +6,7 @@ import { deepMock } from 'mockzilla'
 import { IMessagingCallbackAsync } from '../src/Common/IMessagingCallbackAsync'
 import { MessagingBackgroundScript } from '../src/MessagingBackgroundScript'
 import { IMessagingMessage } from '../src/Common/IMessagingMessage'
-import { IMessagingMessageWithContent } from '../src/IMessagingMessageWithContent'
+import { IMessagingMessageWithContent } from '../src/Common/IMessagingMessageWithContent'
 import { IMessagingMessageName } from '../src/Common/IMessagingMessageName'
 
 describe('MessagingBackgroundScript', () => {

@@ -1,4 +1,4 @@
-import { IMessagingMessage } from './Common/IMessagingMessage'
+import { IMessagingMessage } from './IMessagingMessage'
 
 /**
  * Interface of a message sent via a messaging system including content.
