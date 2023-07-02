@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill'
-import { IMessagingCallbackAsync } from './IMessagingCallbackAsync'
+import { IMessagingCallbackAsync } from './Common/IMessagingCallbackAsync'
 import { IMessagingOnConnect } from './IMessagingOnConnect'
 import { IMessagingMessage } from './Common/IMessagingMessage'
 

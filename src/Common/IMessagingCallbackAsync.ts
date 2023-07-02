@@ -1,4 +1,4 @@
-import { IMessagingMessageName } from './Common/IMessagingMessageName'
+import { IMessagingMessageName } from './IMessagingMessageName'
 
 export interface IMessagingCallbackAsync<TReceive, TReply> {
   messageName(): IMessagingMessageName
