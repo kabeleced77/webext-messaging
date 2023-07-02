@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill'
-import { IMessagingSend } from './IMessagingSend'
+import { IMessagingSend } from './Common/IMessagingSend'
 
 /**
  * Implementation of the messaging-send interface sending "one-off" messages from the background script.

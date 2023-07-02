@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill'
-import { IMessagingSend } from './IMessagingSend'
+import { IMessagingSend } from './Common/IMessagingSend'
 import { IMessagingPort } from './IMessagingPort'
 
 export class MessagingContentScript<TSend, TReceive> implements IMessagingSend<TSend, TReceive> {

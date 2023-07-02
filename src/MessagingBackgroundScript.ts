@@ -1,7 +1,7 @@
 import browser from 'webextension-polyfill'
 import { IMessagingCallbackAsync } from './IMessagingCallbackAsync'
 import { IMessagingOnConnect } from './IMessagingOnConnect'
-import { IMessagingMessage } from './IMessagingMessage'
+import { IMessagingMessage } from './Common/IMessagingMessage'
 
 /**
  * Handle received messages by message name and registered message handler

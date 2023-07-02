@@ -1,4 +1,4 @@
-import { IMessagingMessageWithContent } from './IMessagingMessageWithContent'
+import { IMessagingMessageWithContent } from '../IMessagingMessageWithContent'
 import { IMessagingMessageName } from './IMessagingMessageName'
 
 export class MessagingMessageWithContent<TContent>

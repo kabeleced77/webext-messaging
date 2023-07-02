@@ -1,6 +1,6 @@
 import { Mock } from 'moq.ts'
-import { IMessagingMessageName } from '../src/IMessagingMessageName'
-import { MessagingMessage } from './../src/MessagingMessage'
+import { IMessagingMessageName } from '../src/Common/IMessagingMessageName'
+import { MessagingMessage } from '../src/Common/MessagingMessage'
 
 describe('property test', () => {
   it('property name shall return message-name object', () => {

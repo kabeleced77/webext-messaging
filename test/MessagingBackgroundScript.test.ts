@@ -5,9 +5,9 @@ import { Mock } from 'moq.ts'
 import { deepMock } from 'mockzilla'
 import { IMessagingCallbackAsync } from '../src/IMessagingCallbackAsync'
 import { MessagingBackgroundScript } from '../src/MessagingBackgroundScript'
-import { IMessagingMessage } from '../src/IMessagingMessage'
+import { IMessagingMessage } from '../src/Common/IMessagingMessage'
 import { IMessagingMessageWithContent } from '../src/IMessagingMessageWithContent'
-import { IMessagingMessageName } from '../src/IMessagingMessageName'
+import { IMessagingMessageName } from '../src/Common/IMessagingMessageName'
 
 describe('MessagingBackgroundScript', () => {
   const [port, mockPort, mockPortNode] = deepMock<Runtime.Port>('port')
