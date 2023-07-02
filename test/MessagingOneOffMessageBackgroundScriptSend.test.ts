@@ -2,7 +2,7 @@
 import { mockEvent, MockzillaEventOf } from 'mockzilla-webextension'
 import { Runtime } from 'webextension-polyfill'
 import { deepMock } from 'mockzilla'
-import { MessagingOneOffMessageBackgroundScriptSend } from '../src/MessagingOneOffMessageBackgroundScriptSend'
+import { MessagingOneOffMessageBackgroundScriptSend } from '../src/MessagingOneOff/MessagingOneOffMessageBackgroundScriptSend'
 
 describe('MessagingOneOffMessageBackgroundScriptSend', () => {
   const [sendMessageOptions, mockSendMessageOptions, mockSendMessageOptionsNode] = deepMock<Runtime.SendMessageOptionsType>('sendMessageOptionsType')

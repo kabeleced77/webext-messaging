@@ -3,7 +3,7 @@ import { mockEvent, MockzillaEventOf } from 'mockzilla-webextension'
 import { runtime, Runtime } from 'webextension-polyfill'
 import { Mock } from 'moq.ts'
 import { deepMock } from 'mockzilla'
-import { MessagingContentScript } from './../src/MessagingContentScript'
+import { MessagingContentScript } from '../src/MessagingContentScript'
 import { IMessagingPort } from '../src/IMessagingPort'
 
 describe('MessagingContentScript', () => {
