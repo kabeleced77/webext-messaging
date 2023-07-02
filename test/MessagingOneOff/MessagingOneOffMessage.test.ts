@@ -2,7 +2,7 @@
 import { mockEvent, MockzillaEventOf } from 'mockzilla-webextension'
 import { Runtime } from 'webextension-polyfill'
 import { deepMock } from 'mockzilla'
-import { MessagingOneOffMessage } from '../src/MessagingOneOff/MessagingOneOffMessage'
+import { MessagingOneOffMessage } from '../../src/MessagingOneOff/MessagingOneOffMessage'
 
 describe('MessagingOneOffMessage', () => {
   const [messageSender, mockMessageSender, mockMessageSenderNode] = deepMock<Runtime.MessageSender>('messageSender')

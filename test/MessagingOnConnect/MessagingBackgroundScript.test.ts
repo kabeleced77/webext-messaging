@@ -3,11 +3,11 @@ import { mockEvent, MockzillaEventOf } from 'mockzilla-webextension'
 import { Runtime } from 'webextension-polyfill'
 import { Mock } from 'moq.ts'
 import { deepMock } from 'mockzilla'
-import { IMessagingCallbackAsync } from '../src/Common/IMessagingCallbackAsync'
-import { MessagingBackgroundScript } from '../src/MessagingOnConnect/MessagingBackgroundScript'
-import { IMessagingMessage } from '../src/Common/IMessagingMessage'
-import { IMessagingMessageWithContent } from '../src/Common/IMessagingMessageWithContent'
-import { IMessagingMessageName } from '../src/Common/IMessagingMessageName'
+import { IMessagingCallbackAsync } from '../../src/Common/IMessagingCallbackAsync'
+import { MessagingBackgroundScript } from '../../src/MessagingOnConnect/MessagingBackgroundScript'
+import { IMessagingMessage } from '../../src/Common/IMessagingMessage'
+import { IMessagingMessageWithContent } from '../../src/Common/IMessagingMessageWithContent'
+import { IMessagingMessageName } from '../../src/Common/IMessagingMessageName'
 
 describe('MessagingBackgroundScript', () => {
   const [port, mockPort, mockPortNode] = deepMock<Runtime.Port>('port')
