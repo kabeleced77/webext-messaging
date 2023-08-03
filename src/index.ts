@@ -1,6 +1,5 @@
 export * from './Common/IMessaging'
 export * from './Common/IMessagingCallback'
-export * from './Common/IMessagingCallbackAsync'
 export * from './Common/IMessagingMessage'
 export * from './Common/IMessagingMessageName'
 export * from './Common/IMessagingMessageWithContent'
