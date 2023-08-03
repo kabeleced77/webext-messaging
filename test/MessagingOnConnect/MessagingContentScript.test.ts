@@ -1,13 +1,14 @@
 // import of mockzilla-webextension before(!) actual import of 'webextension-polyfill' in system-under-test
 import { mockEvent, MockzillaEventOf } from 'mockzilla-webextension'
-import { runtime, Runtime } from 'webextension-polyfill'
+import { Runtime } from 'webextension-polyfill'
 import { Mock } from 'moq.ts'
 import { deepMock } from 'mockzilla'
-import { MessagingContentScript } from '../../src/MessagingOnConnect/MessagingContentScript'
+import { MessagingOnConnectContentScriptSend } from '../../src/MessagingOnConnect/MessagingOnConnectContentScriptSend'
 import { IMessagingPort } from '../../src/MessagingOnConnect/IMessagingPort'
 
 describe('MessagingContentScript', () => {
-  const [portErrorType, mockPortErrorType, mockPortErrorTypeNode] = deepMock<Runtime.PortErrorType>('portErrorType')
+  const [portErrorType, mockPortErrorType, mockPortErrorTypeNode] =
+    deepMock<Runtime.PortErrorType>('portErrorType')
   const [port, mockPort, mockPortNode] = deepMock<Runtime.Port>('port')
   let addListenerOnMessage: MockzillaEventOf<typeof mockPort.onMessage>
   let addListenerOnDisconnect: MockzillaEventOf<typeof mockPort.onDisconnect>
@@ -31,7 +32,7 @@ describe('MessagingContentScript', () => {
         .object()
       mockBrowser.runtime.connect.expect({ name: portName }).andReturn(port)
       mockPort.postMessage.expect(message).times(1)
-      const sut = new MessagingContentScript<string, void>(mockedMessagingPort)
+      const sut = new MessagingOnConnectContentScriptSend<string, void>(mockedMessagingPort)
       sut.send(message)
     })
     it('expect no reply of sent (message === undefined)', async () => {
@@ -43,7 +44,7 @@ describe('MessagingContentScript', () => {
         .object()
       mockBrowser.runtime.connect.expect({ name: portName }).andReturn(port)
       mockPort.postMessage.expect(message).times(1)
-      const sut = new MessagingContentScript<string, void>(mockedMessagingPort)
+      const sut = new MessagingOnConnectContentScriptSend<string, void>(mockedMessagingPort)
       sut.send(message)
     })
     it('expect a (reply !== undefined) of sent (message !== undefined)', async () => {
@@ -56,8 +57,8 @@ describe('MessagingContentScript', () => {
         .object()
       mockBrowser.runtime.connect.expect({ name: portName }).andReturn(port)
       mockPort.postMessage.expect(message).times(1)
-      const sut = new MessagingContentScript<string, string>(mockedMessagingPort)
-      sut.send(message).then(reply => expect(reply).toEqual(messageReply))
+      const sut = new MessagingOnConnectContentScriptSend<string, string>(mockedMessagingPort)
+      sut.send(message).then((reply) => expect(reply).toEqual(messageReply))
       addListenerOnMessage.emit(messageReply, port)
     })
     it('expect a (reply !== undefined) of sent (message === undefined)', async () => {
@@ -70,8 +71,8 @@ describe('MessagingContentScript', () => {
         .object()
       mockBrowser.runtime.connect.expect({ name: portName }).andReturn(port)
       mockPort.postMessage.expect(message).times(1)
-      const sut = new MessagingContentScript<string, string>(mockedMessagingPort)
-      sut.send(message).then(reply => expect(reply).toEqual(messageReply))
+      const sut = new MessagingOnConnectContentScriptSend<string, string>(mockedMessagingPort)
+      sut.send(message).then((reply) => expect(reply).toEqual(messageReply))
       addListenerOnMessage.emit(messageReply, port)
     })
     it('expect a (reply === undefined) of sent (message !== undefined)', async () => {
@@ -84,8 +85,8 @@ describe('MessagingContentScript', () => {
         .object()
       mockBrowser.runtime.connect.expect({ name: portName }).andReturn(port)
       mockPort.postMessage.expect(message).times(1)
-      const sut = new MessagingContentScript<string, string>(mockedMessagingPort)
-      sut.send(message).then(reply => expect(reply).toEqual(messageReply))
+      const sut = new MessagingOnConnectContentScriptSend<string, string>(mockedMessagingPort)
+      sut.send(message).then((reply) => expect(reply).toEqual(messageReply))
       addListenerOnMessage.emit(messageReply, port)
     })
     it('expect a (reply !== undefined) of sent (message === undefined)', async () => {
@@ -98,15 +99,15 @@ describe('MessagingContentScript', () => {
         .object()
       mockBrowser.runtime.connect.expect({ name: portName }).andReturn(port)
       mockPort.postMessage.expect(message).times(1)
-      const sut = new MessagingContentScript<string, string>(mockedMessagingPort)
-      sut.send(message).then(reply => expect(reply).toEqual(messageReply))
+      const sut = new MessagingOnConnectContentScriptSend<string, string>(mockedMessagingPort)
+      sut.send(message).then((reply) => expect(reply).toEqual(messageReply))
       addListenerOnMessage.emit(messageReply, port)
     })
     it('expect error if messaging-port-interface is not implementing method name()', async () => {
       const message = 'message-no-reply'
       const mockedMessagingPort = undefined!
       expect(() => {
-        const sut = new MessagingContentScript<string, void>(mockedMessagingPort)
+        const sut = new MessagingOnConnectContentScriptSend<string, void>(mockedMessagingPort)
         sut.send(message)
       }).rejects
     })
@@ -117,7 +118,7 @@ describe('MessagingContentScript', () => {
         .returns(undefined!)
         .object()
       expect(() => {
-        const sut = new MessagingContentScript<string, void>(mockedMessagingPort)
+        const sut = new MessagingOnConnectContentScriptSend<string, void>(mockedMessagingPort)
         sut.send(message)
       }).rejects
     })
@@ -128,7 +129,7 @@ describe('MessagingContentScript', () => {
         .returns(undefined!)
         .object()
       expect(() => {
-        const sut = new MessagingContentScript<string, void>(mockedMessagingPort)
+        const sut = new MessagingOnConnectContentScriptSend<string, void>(mockedMessagingPort)
         sut.send(message)
       }).rejects
     })
@@ -141,9 +142,9 @@ describe('MessagingContentScript', () => {
         .object()
       mockBrowser.runtime.connect.expect({ name: portName }).andReturn(port)
       mockPort.postMessage.expect(message).times(1)
-      const sut = new MessagingContentScript<string, void>(mockedMessagingPort)
+      const sut = new MessagingOnConnectContentScriptSend<string, void>(mockedMessagingPort)
       sut.send(message)
-      mockPortErrorType.message.mock("Forced by unit-test testing port got disconnected.")
+      mockPortErrorType.message.mock('Forced by unit-test testing port got disconnected.')
       mockPort.error?.mock(portErrorType)
       addListenerOnDisconnect.emit(port)
     })
@@ -156,9 +157,9 @@ describe('MessagingContentScript', () => {
         .object()
       mockBrowser.runtime.connect.expect({ name: portName }).andReturn(port).times(2)
       mockPort.postMessage.expect(message).times(2)
-      const sut = new MessagingContentScript<string, void>(mockedMessagingPort)
+      const sut = new MessagingOnConnectContentScriptSend<string, void>(mockedMessagingPort)
       sut.send(message)
-      mockPortErrorType.message.mock("Forced by unit-test testing port got disconnected.")
+      mockPortErrorType.message.mock('Forced by unit-test testing port got disconnected.')
       mockPort.error?.mock(portErrorType)
       addListenerOnDisconnect.emit(port)
       sut.send(message)

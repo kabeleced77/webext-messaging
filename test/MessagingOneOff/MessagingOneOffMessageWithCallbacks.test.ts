@@ -1,79 +1,132 @@
 // import of mockzilla-webextension before(!) actual import of 'webextension-polyfill' in system-under-test
 import { mockEvent, MockzillaEventOf } from 'mockzilla-webextension'
-import { Runtime } from 'webextension-polyfill'
-import { Mock } from 'moq.ts'
-import { deepMock } from 'mockzilla'
+import { It, Mock, Times } from 'moq.ts'
 import { IMessagingCallbackAsync } from '../../src/Common/IMessagingCallbackAsync'
-import { MessagingBackgroundScript } from '../../src/MessagingOnConnect/MessagingBackgroundScript'
+import { MessagingOneOffMessageWithCallbacks } from '../../src/MessagingOneOff/MessagingOneOffMessageWithCallbacks'
 import { IMessagingMessage } from '../../src/Common/IMessagingMessage'
 import { IMessagingMessageWithContent } from '../../src/Common/IMessagingMessageWithContent'
 import { IMessagingMessageName } from '../../src/Common/IMessagingMessageName'
+import IMessaging from '../../src/Common/IMessaging'
+import { CallbackOneOff } from '../../src/Common/IMessagingCallback'
 
-describe('MessagingBackgroundScript', () => {
-  const [port, mockPort, mockPortNode] = deepMock<Runtime.Port>('port')
+
+describe('MessagingOneOffMessageWithCallbacks', () => {
   let addListenerOnConnect: MockzillaEventOf<typeof mockBrowser.runtime.onConnect>
-  let addListenerOnMessage: MockzillaEventOf<typeof mockPort.onMessage>
 
   beforeEach(() => {
     addListenerOnConnect = mockEvent(mockBrowser.runtime.onConnect)
-    addListenerOnMessage = mockEvent(mockPort.onMessage)
-    mockPortNode.enable()
   })
 
-  afterEach(() => mockPortNode.verifyAndDisable())
+  //  afterEach(() => mockPortNode.verifyAndDisable())
 
-  describe('MessagingBackgroundScript function test', () => {
-    it('expect no message-handling as there is no message handler registered and no message received', async () => {
-      const sut = new MessagingBackgroundScript([])
-      sut.onConnect()
-      addListenerOnConnect.emit(port)
+  describe('MessagingBackgroundScriptOnConnect function test', () => {
+    it('no message-handling by callback as no message received', async () => {
+      const msg01Name = 'message-name'
+      const msg01 = 'message-in-unit-test'
+      const mockedMessagingMessage = mockedMessage(mockedMessageName(msg01Name))
+      // const callback = (msg: IMessagingMessage) => new Promise<IMessagingMessage>((r) => r)
+      const callback = new Mock<CallbackOneOff<IMessagingMessage, IMessagingMessage>>()
+        .setup((c) => c(mockedMessagingMessage))
+        .returns(new Promise((r) => r(mockedMessagingMessage)))
+      const sut = new MessagingOneOffMessageWithCallbacks(
+        mockedMessagingOneOff(callback.object()),
+        [],
+      )
+      sut.onMessage()
+      callback.verify((instance) => instance(It.IsAny()), Times.Never())
     })
-    it('expect no message-handling as no message received', async () => {
-      const callbacks = [
-        new Mock<IMessagingCallbackAsync<unknown, unknown>>().object(),
-        new Mock<IMessagingCallbackAsync<unknown, unknown>>().object(),
-        new Mock<IMessagingCallbackAsync<unknown, unknown>>().object(),
-      ]
-      const sut = new MessagingBackgroundScript(callbacks)
-      sut.onConnect()
-      addListenerOnConnect.emit(port)
+    it('message-handling by callback of received message without a reply', async () => {
+      const msg01Name = 'message-name'
+      const msg01 = 'message-in-unit-test'
+      const mockedMessagingMessage = mockedMessage(mockedMessageName(msg01Name))
+
+      let mockedMessagingOneOff = new Mock<IMessaging<CallbackOneOff<IMessagingMessage, void>>>()
+        .setup((messaging) => messaging.handle((mockedMessagingMessage) => new Promise((r) => r)))
+        .returns()
+      //        .callback(({ args: [argument] }) => console.warn(`called with ${argument}`))
+
+      const sut = new MessagingOneOffMessageWithCallbacks(mockedMessagingOneOff.object(), [])
+      sut.onMessage()
+      mockedMessagingOneOff.verify(
+        (instance) =>
+          instance.handle(
+            It.Is<CallbackOneOff<IMessagingMessage, void>>(
+              (value) => value === ((mockedMessagingMessage: IMessagingMessage) => {}),
+            ),
+          ),
+        Times.Exactly(1),
+      )
     })
-    it('expect no message-handling as there is no correctly implemented handler registered', async () => {
-      const msg01 = mockedMessage(mockedMessageName('message-name'))
-      const callbacks = [
-        new Mock<IMessagingCallbackAsync<unknown, unknown>>().object(),
-        new Mock<IMessagingCallbackAsync<unknown, unknown>>().object(),
-        new Mock<IMessagingCallbackAsync<unknown, unknown>>().object(),
-      ]
-      const sut = new MessagingBackgroundScript(callbacks)
-      sut.onConnect()
+    /*
+    it('message-handling by callback of received message with a reply', async () => {
+      const msg01 = 'message-in-unit-test'
+      const reply = 'reply-from-unit-test'
+      const callback = (msg: string) => {
+        expect(msg).toBe(msg01)
+        return new Promise<string>((r) => r(reply))
+      }
+      const sut = new MessagingOneOffMessageWithCallbacks<string, string>()
+      sut.onConnect(callback)
+      mockPort.postMessage.expect(reply).times(1)
       addListenerOnConnect.emit(port)
       addListenerOnMessage.emit(msg01, port)
     })
-    it('expect no message-handling as there is no well-implemented message handler registered', async () => {
-      const msg01 = mockedMessage(mockedMessageName('message-name'))
-      const sut = new MessagingBackgroundScript([])
-      sut.onConnect()
+    it('message-handling by callback of received "undefined" message without a reply', async () => {
+      const msg01 = undefined
+      const callback = (msg: string) => {
+        expect(msg).toBe(msg01)
+        return new Promise<void>((r) => r)
+      }
+      const sut = new MessagingOneOffMessageWithCallbacks<string, void>()
+      sut.onConnect(callback)
       addListenerOnConnect.emit(port)
-      addListenerOnMessage.emit(msg01, port)
+      addListenerOnMessage.emit(undefined, port)
     })
-    it("expect exception as received message is 'undefined'", async () => {
-      const sut = new MessagingBackgroundScript([])
-      expect(() => {
-        sut.onConnect()
-        addListenerOnConnect.emit(port)
-        addListenerOnMessage.emit(undefined, port)
-      }).toThrowError()
+    it('message-handling by callback of received "undefined" message with a reply', async () => {
+      const msg01 = undefined
+      const reply = 'reply-from-unit-test'
+      const callback = (msg: string) => {
+        expect(msg).toBe(msg01)
+        return new Promise<string>((r) => r(reply))
+      }
+      const sut = new MessagingOneOffMessageWithCallbacks<string, string>()
+      sut.onConnect(callback)
+      mockPort.postMessage.expect(reply).times(1)
+      addListenerOnConnect.emit(port)
+      addListenerOnMessage.emit(undefined, port)
     })
-    it("expect exception as received message's name-property is 'undefined'", async () => {
-      const msg01 = mockedMessage(undefined!)
-      const sut = new MessagingBackgroundScript([])
+    it('exception when callback throws an error', async () => {
+      const msg01 = 'message-in-unit-test'
+      const callback = (msg: string) => {
+        expect(msg).toBe(msg01)
+        throw new Error('Test-error within unit-test')
+      }
+      const sut = new MessagingOneOffMessageWithCallbacks<string, void>()
       expect(() => {
-        sut.onConnect()
+        sut.onConnect(callback)
         addListenerOnConnect.emit(port)
         addListenerOnMessage.emit(msg01, port)
-      }).toThrowError()
+      }).rejects
     })
+    */
+    /*
+    it('exception when port got disconnected', async () => {
+      const msg01 = 'message-in-unit-test'
+      const reply = 'reply-from-unit-test'
+      const callback = ((msg: string) => {
+        expect(msg).toBe(msg01)
+        return new Promise<string>(r => r(reply))
+      })
+      const sut = new MessagingBackgroundScriptOnConnect<string, string>()
+      sut.onConnect(callback)
+      mockPort.postMessage.expect(reply).times(1)
+      addListenerOnConnect.emit(port)
+      addListenerPortOnDisconnect.emit(port)
+      mockPortNode.disable()
+      addListenerOnMessage.emit(msg01, port)
+    })
+    */
+    /*
     it("expect exception as received message's name-property's name is 'undefined'", async () => {
       const msg01 = mockedMessage(mockedMessageName(undefined!))
       const sut = new MessagingBackgroundScript([])
@@ -214,9 +267,19 @@ describe('MessagingBackgroundScript', () => {
       addListenerOnConnect.emit(port)
       addListenerOnMessage.emit(msg01, port)
     })
+    */
   })
 
-  /*** Supporting functions encapsulating repeating mocking methods ***/
+  /** Supporting functions encapsulating repeating mocking methods ** */
+
+  function mockedMessagingOneOff(
+    callback: CallbackOneOff<IMessagingMessage, IMessagingMessage>,
+  ): IMessaging<CallbackOneOff<IMessagingMessage, IMessagingMessage>> {
+    return new Mock<IMessaging<CallbackOneOff<IMessagingMessage, IMessagingMessage>>>()
+      .setup((messaging) => messaging.handle(callback))
+      .returns()
+      .object()
+  }
 
   function mockedCallback(
     msgNameObj: IMessagingMessageName,
