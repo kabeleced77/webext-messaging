@@ -11,7 +11,7 @@ import { CallbackOneOff, IMessagingCallback } from '../Common/IMessagingCallback
  * Remark: only one callback per message is supported. If there are more callbacks for one message
  * registered only first one is called.
  */
-export class MessagingOneOffMessageWithCallbacks {
+export class MessagingOneOffMessageWithCallbacks implements IMessaging<void> {
   /**
    * @param messagingOneOff Messaging implementation actually used to receive message from.
    * @param callbacks Array of callbacks providing message handler for certain messages.
@@ -26,7 +26,7 @@ export class MessagingOneOffMessageWithCallbacks {
   ) {}
 
   /** Starts the event handler listening for sent messages. */
-  public onMessage(): void {
+  public handle(): void {
     this.messagingOneOff.handle(this.handleMessage)
   }
 
