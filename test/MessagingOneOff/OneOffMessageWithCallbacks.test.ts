@@ -8,7 +8,7 @@ import { IMessagingMessageName } from '../../src/Common/IMessagingMessageName'
 import IMessaging from '../../src/Common/IMessaging'
 import { IOneOffMessagingCallback } from '../../src/OneOffMessaging/IOneOffMessagingCallback'
 
-describe('MessagingOneOffMessageWithCallbacks', () => {
+describe('OneOffMessageWithCallbacks', () => {
   let addListenerOnMessage: MockzillaEventOf<typeof mockBrowser.runtime.onMessage>
 
   beforeEach(() => {
