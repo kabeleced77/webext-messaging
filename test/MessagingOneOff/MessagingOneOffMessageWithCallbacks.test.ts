@@ -1,20 +1,18 @@
 // import of mockzilla-webextension before(!) actual import of 'webextension-polyfill' in system-under-test
 import { mockEvent, MockzillaEventOf } from 'mockzilla-webextension'
 import { It, Mock, Times } from 'moq.ts'
-import { IMessagingCallbackAsync } from '../../src/Common/IMessagingCallbackAsync'
-import { MessagingOneOffMessageWithCallbacks } from '../../src/MessagingOneOff/MessagingOneOffMessageWithCallbacks'
+import { OneOffMessagingWithCallbacks } from '../../src/OneOffMessaging/OneOffMessagingWithCallbacks'
 import { IMessagingMessage } from '../../src/Common/IMessagingMessage'
 import { IMessagingMessageWithContent } from '../../src/Common/IMessagingMessageWithContent'
 import { IMessagingMessageName } from '../../src/Common/IMessagingMessageName'
 import IMessaging from '../../src/Common/IMessaging'
-import { CallbackOneOff } from '../../src/Common/IMessagingCallback'
-
+import { IOneOffMessagingCallback } from '../../src/OneOffMessaging/IOneOffMessagingCallback'
 
 describe('MessagingOneOffMessageWithCallbacks', () => {
-  let addListenerOnConnect: MockzillaEventOf<typeof mockBrowser.runtime.onConnect>
+  let addListenerOnMessage: MockzillaEventOf<typeof mockBrowser.runtime.onMessage>
 
   beforeEach(() => {
-    addListenerOnConnect = mockEvent(mockBrowser.runtime.onConnect)
+    addListenerOnMessage = mockEvent(mockBrowser.runtime.onMessage)
   })
 
   //  afterEach(() => mockPortNode.verifyAndDisable())
@@ -22,40 +20,37 @@ describe('MessagingOneOffMessageWithCallbacks', () => {
   describe('MessagingBackgroundScriptOnConnect function test', () => {
     it('no message-handling by callback as no message received', async () => {
       const msg01Name = 'message-name'
-      const msg01 = 'message-in-unit-test'
-      const mockedMessagingMessage = mockedMessage(mockedMessageName(msg01Name))
-      // const callback = (msg: IMessagingMessage) => new Promise<IMessagingMessage>((r) => r)
-      const callback = new Mock<CallbackOneOff<IMessagingMessage, IMessagingMessage>>()
-        .setup((c) => c(mockedMessagingMessage))
-        .returns(new Promise((r) => r(mockedMessagingMessage)))
-      const sut = new MessagingOneOffMessageWithCallbacks(
-        mockedMessagingOneOff(callback.object()),
-        [],
-      )
-      sut.onMessage()
-      callback.verify((instance) => instance(It.IsAny()), Times.Never())
+      const mockedMessageName = mockedMessagingMessageName(msg01Name)
+      const mockedMessage = mockedMessagingMessage(mockedMessageName)
+      const callback = new Mock<IOneOffMessagingCallback<IMessagingMessage, IMessagingMessage>>()
+        .setup((callback) => callback.messageName())
+        .returns(mockedMessageName)
+        .setup((callback) => callback.execute(mockedMessage))
+        .returns(new Promise((r) => r(mockedMessage)))
+
+      const sut = new OneOffMessagingWithCallbacks([callback.object()])
+      sut.handle()
+
+      callback.verify((instance) => instance.messageName(), Times.Never())
+      callback.verify((instance) => instance.execute(It.IsAny()), Times.Never())
     })
     it('message-handling by callback of received message without a reply', async () => {
       const msg01Name = 'message-name'
       const msg01 = 'message-in-unit-test'
-      const mockedMessagingMessage = mockedMessage(mockedMessageName(msg01Name))
+      const mockedMessageName = mockedMessagingMessageName(msg01Name)
+      const mockedMessage = mockedMessagingMessage(mockedMessageName)
+      const callback = new Mock<IOneOffMessagingCallback<IMessagingMessage, IMessagingMessage>>()
+        .setup((callback) => callback.messageName())
+        .returns(mockedMessageName)
+        .setup((callback) => callback.execute(mockedMessage))
+        .returns(new Promise((r) => r(mockedMessage)))
 
-      let mockedMessagingOneOff = new Mock<IMessaging<CallbackOneOff<IMessagingMessage, void>>>()
-        .setup((messaging) => messaging.handle((mockedMessagingMessage) => new Promise((r) => r)))
-        .returns()
-      //        .callback(({ args: [argument] }) => console.warn(`called with ${argument}`))
+      const sut = new OneOffMessagingWithCallbacks([callback.object()])
+      sut.handle()
 
-      const sut = new MessagingOneOffMessageWithCallbacks(mockedMessagingOneOff.object(), [])
-      sut.onMessage()
-      mockedMessagingOneOff.verify(
-        (instance) =>
-          instance.handle(
-            It.Is<CallbackOneOff<IMessagingMessage, void>>(
-              (value) => value === ((mockedMessagingMessage: IMessagingMessage) => {}),
-            ),
-          ),
-        Times.Exactly(1),
-      )
+      addListenerOnMessage.emit(mockedMessage, It.IsAny())
+      callback.verify((instance) => instance.messageName(), Times.Exactly(2))
+      callback.verify((instance) => instance.execute(It.IsAny()), Times.Exactly(1))
     })
     /*
     it('message-handling by callback of received message with a reply', async () => {
@@ -273,9 +268,9 @@ describe('MessagingOneOffMessageWithCallbacks', () => {
   /** Supporting functions encapsulating repeating mocking methods ** */
 
   function mockedMessagingOneOff(
-    callback: CallbackOneOff<IMessagingMessage, IMessagingMessage>,
-  ): IMessaging<CallbackOneOff<IMessagingMessage, IMessagingMessage>> {
-    return new Mock<IMessaging<CallbackOneOff<IMessagingMessage, IMessagingMessage>>>()
+    callback: IOneOffMessagingCallback<IMessagingMessage, IMessagingMessage>,
+  ): IMessaging<IOneOffMessagingCallback<IMessagingMessage, IMessagingMessage>> {
+    return new Mock<IMessaging<IOneOffMessagingCallback<IMessagingMessage, IMessagingMessage>>>()
       .setup((messaging) => messaging.handle(callback))
       .returns()
       .object()
@@ -285,23 +280,23 @@ describe('MessagingOneOffMessageWithCallbacks', () => {
     msgNameObj: IMessagingMessageName,
     msgObjReceived?: IMessagingMessage,
     callbackReturn?: Promise<IMessagingMessage>,
-  ): IMessagingCallbackAsync<unknown, unknown> {
-    let mockedCallback = new Mock<IMessagingCallbackAsync<unknown, unknown>>()
+  ): IOneOffMessagingCallback<unknown, unknown> {
+    let mockedCallback = new Mock<IOneOffMessagingCallback<unknown, unknown>>()
       .setup((callback) => callback.messageName())
       .returns(msgNameObj)
     if (msgObjReceived) {
       mockedCallback = mockedCallback
-        .setup((callback) => callback.executeAsync(msgObjReceived))
+        .setup((callback) => callback.execute(msgObjReceived))
         .returns(new Promise<void>((r) => r()))
     }
     if (msgObjReceived && callbackReturn) {
       mockedCallback = mockedCallback
-        .setup((callback) => callback.executeAsync(msgObjReceived))
+        .setup((callback) => callback.execute(msgObjReceived))
         .returns(callbackReturn)
     }
     return mockedCallback.object()
   }
-  function mockedMessage(msgNameObj: IMessagingMessageName): IMessagingMessage {
+  function mockedMessagingMessage(msgNameObj: IMessagingMessageName): IMessagingMessage {
     return new Mock<IMessagingMessage>()
       .setup((msg) => msg.name)
       .returns(msgNameObj)
@@ -318,7 +313,7 @@ describe('MessagingOneOffMessageWithCallbacks', () => {
       .returns(msgContent)
       .object()
   }
-  function mockedMessageName(msgNameStr: string): IMessagingMessageName {
+  function mockedMessagingMessageName(msgNameStr: string): IMessagingMessageName {
     return new Mock<IMessagingMessageName>()
       .setup((msgName) => msgName.name)
       .returns(msgNameStr)

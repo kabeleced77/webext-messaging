@@ -1,20 +1,21 @@
-import { MessagingBackgroundScript } from '@kabeleced/webext-messaging'
 import { MessagingCallbackPowerOf } from './MessagingCallbackPowerOf'
 import { MessagingCallbackTimeNow } from './MessagingCallbackTimeNow'
 import { MessagingCallbackClearLocalStorage } from './MessagingCallbackClearLocalStorage'
+import { OneOffMessagingWithCallbacks } from '@kabeleced/webext-messaging'
+import { MessagingCallbackThrow } from './MessagingCallbackThrow'
+import { MessagingCallbackWait } from './MessagingCallbackWait'
 
-/**
- * Following the entry point for the background script of this WebExtension.
- */
 ;(() => {
   try {
     console.log('Test-Extension: background script started')
-    new MessagingBackgroundScript([
+    new OneOffMessagingWithCallbacks([
       new MessagingCallbackPowerOf(),
+      new MessagingCallbackThrow(),
+      new MessagingCallbackWait(),
       new MessagingCallbackTimeNow(),
       new MessagingCallbackClearLocalStorage(),
-    ]).connect()
+    ]).handle()
   } catch (error) {
-    console.error(`Background script error: ${error} ${error.stack}`)
+    console.error(`in background: ${error} ${error.stack}`)
   }
 })()

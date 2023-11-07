@@ -11,6 +11,7 @@
     "build": "rm -rf dist && tsc",
     "test": "jest",
     "pack": "npm run build && npm pack",
+    "e2e-update": "npx cypress install",
     "e2e": "npx cypress open"
   },
   "keywords": [
@@ -20,18 +21,20 @@
   ],
   "author": "Kabeleced",
   "devDependencies": {
+    "@types/chrome": "^0.0.243",
     "@types/jest": "^27.4.1",
+    "@types/webextension-polyfill": "^0.8.0",
     "cypress": "^9.5.2",
     "cypress-browser-extension-plugin": "^0.1.0",
     "jest": "^27.5.1",
     "mockzilla": "^0.12.0",
     "mockzilla-webextension": "^0.13.0",
     "moq.ts": "^7.3.4",
+    "prettier-plugin-jsdoc": "^0.4.2",
     "ts-jest": "^27.1.4",
     "typescript": "^4.6.3"
   },
   "dependencies": {
-    "@types/webextension-polyfill": "^0.8.3",
     "webextension-polyfill": "^0.8.0"
   }
 }

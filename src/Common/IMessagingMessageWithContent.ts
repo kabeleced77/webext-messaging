@@ -1,9 +1,9 @@
 import { IMessagingMessage } from './IMessagingMessage'
 
 /**
- * Interface of a message sent via a messaging system including content.
+ * Interface of a message sent via a messaging system, which also contains content generic type.
  *
- * A messaging message with content extends the base messaging-message by a generic content.
+ * @property content - Actual content of a messaging message
  */
 export interface IMessagingMessageWithContent<TContent> extends IMessagingMessage {
   content: TContent

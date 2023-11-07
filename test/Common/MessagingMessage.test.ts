@@ -2,7 +2,7 @@ import { Mock } from 'moq.ts'
 import { IMessagingMessageName } from '../../src/Common/IMessagingMessageName'
 import { MessagingMessage } from '../../src/Common/MessagingMessage'
 
-describe('property test', () => {
+describe('MessagingMessage property test', () => {
   it('property name shall return message-name object', () => {
     const name01 = 'messageName01'
     const mockMsgName01 = new Mock<IMessagingMessageName>()

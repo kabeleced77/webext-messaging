@@ -1,4 +1,5 @@
 const path = require('path')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = {
   resolve: {
@@ -17,4 +18,13 @@ module.exports = {
   module: {
     rules: [{ test: /\.ts$/, loader: 'ts-loader' }],
   },
+  plugins: [
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'node_modules/webextension-polyfill/dist/browser-polyfill.js',
+        },
+      ],
+    }),
+  ],
 }

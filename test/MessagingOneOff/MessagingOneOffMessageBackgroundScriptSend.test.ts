@@ -2,10 +2,11 @@
 import { mockEvent, MockzillaEventOf } from 'mockzilla-webextension'
 import { Runtime } from 'webextension-polyfill'
 import { deepMock } from 'mockzilla'
-import { MessagingOneOffMessageBackgroundScriptSend } from '../../src/MessagingOneOff/MessagingOneOffMessageBackgroundScriptSend'
+import { OneOffMessagingBackgroundScriptSend } from '../../src/OneOffMessaging/OneOffMessagingBackgroundScriptSend'
 
 describe('MessagingOneOffMessageBackgroundScriptSend', () => {
-  const [sendMessageOptions, mockSendMessageOptions, mockSendMessageOptionsNode] = deepMock<Runtime.SendMessageOptionsType>('sendMessageOptionsType')
+  const [sendMessageOptions, mockSendMessageOptions, mockSendMessageOptionsNode] =
+    deepMock<Runtime.SendMessageOptionsType>('sendMessageOptionsType')
   let addListenerOnMessage: MockzillaEventOf<typeof mockBrowser.runtime.onMessage>
 
   beforeEach(() => {
@@ -16,12 +17,11 @@ describe('MessagingOneOffMessageBackgroundScriptSend', () => {
   afterEach(() => mockSendMessageOptionsNode.verifyAndDisable())
 
   describe('MessagingOneOffMessageBackgroundScriptSend function test', () => {
-
     it('send message to configured tab', async () => {
       const tabId = 1
       const msg01 = 'message-in-unit-test'
       mockBrowser.tabs.sendMessage.expect(tabId, msg01, undefined).andResolve(false)
-      const sut = new MessagingOneOffMessageBackgroundScriptSend<string, void>(tabId)
+      const sut = new OneOffMessagingBackgroundScriptSend<string, void>(tabId)
       sut.send(msg01)
     })
   })

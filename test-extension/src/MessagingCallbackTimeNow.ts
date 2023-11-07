@@ -1,23 +1,21 @@
 import {
+  IOneOffMessagingCallback,
   IMessagingMessage,
   IMessagingMessageWithContent,
   MessagingMessageWithContent,
 } from '@kabeleced/webext-messaging'
 import { IMessagingMessageName } from '@kabeleced/webext-messaging'
-import { IMessagingCallbackAsync } from '@kabeleced/webext-messaging'
 import { MessagingMessageNameTimeNow } from './MessagingMessageNameTimeNow'
 
 export class MessagingCallbackTimeNow
-  implements IMessagingCallbackAsync<IMessagingMessage, IMessagingMessageWithContent<Date>>
+  implements IOneOffMessagingCallback<IMessagingMessage, IMessagingMessageWithContent<Date>>
 {
   constructor() {}
 
   public messageName(): IMessagingMessageName {
     return new MessagingMessageNameTimeNow()
   }
-  public executeAsync(
-    messageReceived: IMessagingMessage,
-  ): Promise<IMessagingMessageWithContent<Date>> {
+  public execute(messageReceived: IMessagingMessage): Promise<IMessagingMessageWithContent<Date>> {
     return new Promise((resolve) => {
       console.log(
         `Callback ${this.messageName().name} received message: ${JSON.stringify(messageReceived)}`,
