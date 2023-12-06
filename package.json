@@ -1,7 +1,7 @@
 {
   "name": "@kabeleced/webext-messaging",
   "version": "0.1.0",
-  "description": "This package provides a wrapper for WebExtensions messaging allowing an easier handling.",
+  "description": "This package provides interfaces and implementations exchanging messages between the content and the background script of a WebExtension.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
